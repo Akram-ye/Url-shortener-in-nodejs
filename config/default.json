@@ -1,0 +1,5 @@
+{
+  "mongodbUrl": "mongodb://localhost:27017/short_url?retryWrites=true&w=majority",
+  "port": 3005,
+  "baseUrl": "http://localhost:3005"
+}
