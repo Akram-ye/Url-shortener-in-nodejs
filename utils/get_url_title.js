@@ -16,7 +16,8 @@ async function getTitle(pageUrl) {
             }
         })
         .catch(err => {
-            console.log(err)
+            console.log('GET TITILE ERROR: ' + err)
+            return
         })
 }
 

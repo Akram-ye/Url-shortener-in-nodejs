@@ -9,15 +9,16 @@ const app = express()
 // connect to database
 connectDb()
 
-app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 
 // define routes
 app.use(
     '/api',
-    validateUser,
+    // validateUser,
     require('./routes/url'),
     require('./routes/auth'),
-    require('./routes/healthchecker')
+    require('./routes/healthcheck')
 )
 
 // server

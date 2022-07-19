@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema(
             required: true,
         },
         api_key: { type: String },
-        // TODO: add referance to url
     },
     {
         timestamps: {

@@ -4,7 +4,6 @@ const { nanoid } = require('nanoid')
 const config = require('config')
 const Url = require('../models/Url')
 const pageTitle = require('../utils/get_url_title')
-const { validateUser } = require('../controller/auth')
 
 const router = express.Router()
 
@@ -31,7 +30,7 @@ router.post('/shorten', async (req, res) => {
     }
 
     // check long url
-    if (validUrl.isUri(longUrl)) {
+    if (validUrl.isWebUri(longUrl)) {
         let url = await Url.findOne({ longUrl })
         let urlCode
 
