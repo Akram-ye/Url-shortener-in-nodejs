@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator')
 
 const api_key_generator = require('../utils/api_key_generator')
 const User = require('../models/User')
+const { validateUser } = require('./controller/auth')
 
 const router = express.Router()
 
@@ -30,6 +31,7 @@ router.post(
             .notEmpty()
             .withMessage('Please enter password!'),
     ],
+
     async (req, res) => {
         const error = validationResult(req)
 
@@ -124,7 +126,7 @@ router.post(
         .notEmpty()
         .withMessage('email must be presented'),
     body('password').notEmpty().withMessage('pleas enter password'),
-
+    validateUser,
     async (req, res) => {
         const error = validationResult(req)
 
@@ -148,9 +150,10 @@ router.post(
                     .status(401)
                     .json({ error: 'Invalid email or password!!!' })
             }
-            //
+
+            let _id = user._id
             return await User.findByIdAndUpdate(
-                { _id: user._id },
+                { _id },
                 { $set: { api_key } },
                 { new: true }
             )

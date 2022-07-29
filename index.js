@@ -2,7 +2,6 @@ const express = require('express')
 const connectDb = require('./config/db')
 const config = require('config')
 const bodyParser = require('body-parser')
-const { validateUser } = require('./controller/auth')
 
 const app = express()
 
@@ -12,10 +11,9 @@ connectDb()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-// define routes
+//  routes
 app.use(
     '/api',
-    // validateUser,
     require('./routes/url'),
     require('./routes/auth'),
     require('./routes/healthcheck')

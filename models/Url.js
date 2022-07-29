@@ -7,8 +7,9 @@ const urlSchema = new mongoose.Schema(
         shortUrl: String,
         title: { type: String, default: 'N/A' },
         clicks: { type: Number, default: 0 },
-        user: {
+        owner: {
             type: mongoose.Schema.Types.ObjectId,
+            require: true,
             ref: 'User',
         },
     },
