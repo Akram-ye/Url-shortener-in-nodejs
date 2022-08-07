@@ -11,7 +11,7 @@ connectDb()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-//  routes
+// routes
 app.use(
     '/api',
     require('./routes/url'),
@@ -20,7 +20,7 @@ app.use(
 )
 
 // server
-const port = config.get('port')
+const port = process.env.port || config.get('port')
 app.listen(port, error => {
     if (error) {
         console.log('error to launch a server \n' + error)

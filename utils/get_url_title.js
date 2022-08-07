@@ -1,6 +1,8 @@
 const axios = require('axios').default
 const cheerio = require('cheerio')
 
+// TODO: Use an existing url title pakage ...faster then this 😅
+
 async function getTitle(pageUrl) {
     return await axios
         .get(pageUrl)

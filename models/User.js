@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        api_key: { type: String },
     },
     {
         timestamps: {

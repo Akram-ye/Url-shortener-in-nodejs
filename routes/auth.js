@@ -3,12 +3,12 @@ const { body, validationResult } = require('express-validator')
 
 const api_key_generator = require('../utils/api_key_generator')
 const User = require('../models/User')
-const { validateUser } = require('./controller/auth')
+const ApiKey = require('../models/ApiKey')
 
 const router = express.Router()
 
 router.get('/auth', (req, res) => {
-    res.send('auth')
+    return res.send('auth')
 })
 
 // user signin
@@ -31,7 +31,6 @@ router.post(
             .notEmpty()
             .withMessage('Please enter password!'),
     ],
-
     async (req, res) => {
         const error = validationResult(req)
 
@@ -41,9 +40,6 @@ router.post(
 
         let { username, email, password } = req.body
         let user = await User.findOne({ username, email })
-
-        const key = api_key_generator.generateKey()
-        const api_key = api_key_generator.generateSecretHash(key)
 
         try {
             if (user) {
@@ -56,7 +52,6 @@ router.post(
                     username,
                     email,
                     password,
-                    api_key,
                 })
                 await user
                     .save()
@@ -103,13 +98,13 @@ router.post(
 
             if (!user) return res.status(404).json({ message: 'No user found' })
 
-            if (user.comparePassword(password)) {
-                return res.status(200).json({ user })
-            } else {
+            if (!user.comparePassword(password)) {
                 return res
                     .status(401)
                     .json({ error: 'Username or password is incorrect' })
             }
+
+            return res.status(200).json({ user })
         } catch (error) {
             console.log(error)
         }
@@ -126,45 +121,75 @@ router.post(
         .notEmpty()
         .withMessage('email must be presented'),
     body('password').notEmpty().withMessage('pleas enter password'),
-    validateUser,
     async (req, res) => {
         const error = validationResult(req)
-
         if (!error.isEmpty()) {
             return res.status(404).json({ error: error.array()[0].msg })
         }
 
         let { email, password } = req.body
 
-        const key = api_key_generator.generateKey()
-        const api_key = api_key_generator.generateSecretHash(key)
+        const api_key = api_key_generator.generateKey()
+        // const api_key = api_key_generator.generateSecretHash(key)
+        console.log('KEY::::::\n', api_key)
 
         try {
             let user = await User.findOne({ email })
+            console.log('USER::::::\n', user)
 
             if (!user)
-                return res.status(404).json({ message: 'User not found' })
+                return res.status(404).json({ message: 'User not found!' })
 
             if (!user.comparePassword(password)) {
                 return res
                     .status(401)
-                    .json({ error: 'Invalid email or password!!!' })
+                    .json({ error: 'Invalid email or password!' })
             }
+            let app_key = await ApiKey.findOne({ owner: user._id })
 
-            let _id = user._id
-            return await User.findByIdAndUpdate(
-                { _id },
-                { $set: { api_key } },
-                { new: true }
-            )
-                .then(user => {
-                    return res.status(200).json({ key, user })
+            console.log('APP_KEY:::::\n', app_key)
+
+            // if (!app_key) {
+            let key = new ApiKey({
+                api_key,
+                owner: user._id,
+            })
+
+            await key
+                .save()
+                .then(() => {
+                    return res.status(200).json({
+                        message:
+                            'Success, This api key is confidential it will only show once so keep it in a safe place',
+                        key,
+                    })
                 })
                 .catch(error => {
-                    return res.status(201).json({ error })
+                    return res.status(400).json({ message: error.message })
                 })
+            // }
+
+            if (app_key) {
+                const _id = app_key._id
+                await ApiKey.findByIdAndUpdate(
+                    { _id },
+                    { $set: { api_key } },
+                    { new: true }
+                )
+                    .exec()
+                    .then(() => {
+                        return res.status(200).json({
+                            message:
+                                'Success, This api key is confidential it will only show once so keep it in a safe place',
+                            api_key,
+                        })
+                    })
+                    .catch(error => {
+                        return res.status(201).json({ message: error.message })
+                    })
+            }
         } catch (error) {
-            return res.status(201).json({ message: error })
+            return res.status(201).json({ message: error.message })
         }
     }
 )

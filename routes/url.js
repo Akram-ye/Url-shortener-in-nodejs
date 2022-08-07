@@ -4,9 +4,12 @@ const { nanoid } = require('nanoid')
 const config = require('config')
 const Url = require('../models/Url')
 const pageTitle = require('../utils/get_url_title')
-
-const { validateUser } = require('./controller/auth')
-const { validate } = require('../models/Url')
+const User = require('../models/User')
+const {
+    compareKeys,
+    generateSecretHash,
+} = require('../utils/api_key_generator')
+const { validateUser } = require('../controller/auth')
 
 const router = express.Router()
 
@@ -74,11 +77,11 @@ router.get('/url/:code', validateUser, async (req, res) => {
     try {
         const url = await Url.findOne({ urlCode: req.params.code })
         if (url) {
-            const id = url._id
+            const _id = url._id
             let clicks = url.clicks
             clicks++
             await Url.findByIdAndUpdate(
-                { id },
+                { _id },
                 { $set: { clicks } },
                 { new: true }
             )
@@ -101,7 +104,7 @@ router.get('/url/:code', validateUser, async (req, res) => {
 
 // @route     GET /api/urls
 // @desc      Get All Urls
-router.get('/getUrls', validUrl, async (req, res) => {
+router.get('/getUrls', validateUser, async (req, res) => {
     try {
         let url = await Url.find().sort({ created_at: -1 })
         let count = await Url.estimatedDocumentCount()
