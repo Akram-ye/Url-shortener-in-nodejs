@@ -130,12 +130,9 @@ router.post(
         let { email, password } = req.body
 
         const api_key = api_key_generator.generateKey()
-        // const api_key = api_key_generator.generateSecretHash(key)
-        console.log('KEY::::::\n', api_key)
 
         try {
             let user = await User.findOne({ email })
-            console.log('USER::::::\n', user)
 
             if (!user)
                 return res.status(404).json({ message: 'User not found!' })
@@ -146,9 +143,6 @@ router.post(
                     .json({ error: 'Invalid email or password!' })
             }
             let app_key = await ApiKey.findOne({ owner: user._id })
-
-            console.log('APP_KEY:::::\n', app_key)
-
             // if (!app_key) {
             let key = new ApiKey({
                 api_key,
