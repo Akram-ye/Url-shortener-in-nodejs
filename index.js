@@ -2,6 +2,7 @@ const express = require('express')
 const connectDb = require('./config/db')
 const config = require('config')
 const bodyParser = require('body-parser')
+const morgan = require('morgan')
 
 const app = express()
 
@@ -10,7 +11,7 @@ connectDb()
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-
+app.use(morgan('tiny'))
 // routes
 app.use(
     '/api',

@@ -4,11 +4,7 @@ const { nanoid } = require('nanoid')
 const config = require('config')
 const Url = require('../models/Url')
 const pageTitle = require('../utils/get_url_title')
-const User = require('../models/User')
-const {
-    compareKeys,
-    generateSecretHash,
-} = require('../utils/api_key_generator')
+
 const { validateUser } = require('../controller/auth')
 
 const router = express.Router()
@@ -39,7 +35,7 @@ router.post('/shorten', validateUser, async (req, res) => {
         return res.status(400).json({ message: 'Invalid long url' })
     }
 
-    let title = await pageTitle(longUrl)
+    let title = pageTitle(longUrl)
     try {
         if (url) {
             return res

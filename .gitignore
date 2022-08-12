@@ -42,6 +42,7 @@ build/Release
 node_modules/
 jspm_packages/
 requests
+config
 
 # Editor Settings
 .vscode

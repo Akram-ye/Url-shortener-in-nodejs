@@ -1,25 +1,20 @@
-const axios = require('axios').default
+// const axios = require('axios').default
 const cheerio = require('cheerio')
+const got = require('got')
+const MetaInspector = require('node-metainspector')
 
 // TODO: Use an existing url title pakage ...faster then this 😅
 
 async function getTitle(pageUrl) {
-    return await axios
-        .get(pageUrl)
-        .then(res => {
-            try {
-                let $ = cheerio.load(res.data)
-                let title = $('head > title').text()
-
-                if (!title) return
-                return title
-            } catch (error) {
-                return error
-            }
+    await got(pageUrl)
+        .then(response => {
+            const $ = cheerio.load(response.body)
+            let title = $('head > title').text()
+            console.log(title)
+            return title
         })
         .catch(err => {
-            console.log('GET TITILE ERROR: ' + err)
-            return
+            console.log(err)
         })
 }
 
