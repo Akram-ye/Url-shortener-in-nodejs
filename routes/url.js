@@ -35,8 +35,9 @@ router.post('/shorten', validateUser, async (req, res) => {
         return res.status(400).json({ message: 'Invalid long url' })
     }
 
-    let title = pageTitle(longUrl)
     try {
+        let title = await pageTitle(longUrl)
+
         if (url) {
             return res
                 .status(201)
