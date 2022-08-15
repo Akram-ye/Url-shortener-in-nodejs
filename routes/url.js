@@ -3,6 +3,7 @@ const validUrl = require('valid-url')
 const { nanoid } = require('nanoid')
 const config = require('config')
 const Url = require('../models/Url')
+const ApiKey = require('../models/ApiKey')
 const pageTitle = require('../utils/get_url_title')
 
 const { validateUser } = require('../controller/auth')
@@ -20,11 +21,14 @@ router.get('/', (req, res) => {
 // @desc    Create short URL
 router.post('/shorten', validateUser, async (req, res) => {
     const { longUrl, alias } = req.body
+    let api_key = req.header('api_key')
     const baseUrl = config.get('baseUrl')
 
     let url = await Url.findOne({ longUrl })
-    let urlCode
+    let api_owner = await ApiKey.findOne({ api_key })
+    let owner_id = api_owner.owner._id
 
+    let urlCode
     // check base url
     if (!validUrl.isUri(baseUrl)) {
         return res.status(400).json({ message: 'Invalid base url' })
@@ -51,6 +55,7 @@ router.post('/shorten', validateUser, async (req, res) => {
                 shortUrl,
                 urlCode,
                 title,
+                owner: owner_id,
             })
         }
 
