@@ -26,9 +26,10 @@ router.post('/shorten', validateUser, async (req, res) => {
 
     let url = await Url.findOne({ longUrl })
     let api_owner = await ApiKey.findOne({ api_key })
-    let owner_id = api_owner.owner._id
 
+    let owner = api_owner.owner._id
     let urlCode
+
     // check base url
     if (!validUrl.isUri(baseUrl)) {
         return res.status(400).json({ message: 'Invalid base url' })
@@ -39,15 +40,20 @@ router.post('/shorten', validateUser, async (req, res) => {
         return res.status(400).json({ message: 'Invalid long url' })
     }
 
+    // adding url
     try {
         let title = await pageTitle(longUrl)
 
+        // console.log(owner._id.equals(url.owner._id))
+
+        // TODO: check if user has duplicate url
         if (url) {
             return res
                 .status(201)
-                .json({ message: 'longUrl is already exist!!! ', url })
+                .json({ message: 'Url is already exist!!! ', url })
         } else {
             alias ? (urlCode = alias) : (urlCode = nanoid(10))
+
             const shortUrl = baseUrl + '/api/url/' + urlCode
 
             url = new Url({
@@ -55,7 +61,7 @@ router.post('/shorten', validateUser, async (req, res) => {
                 shortUrl,
                 urlCode,
                 title,
-                owner: owner_id,
+                owner,
             })
         }
 
@@ -67,15 +73,14 @@ router.post('/shorten', validateUser, async (req, res) => {
             return res
                 .status(500)
                 .json({ message: 'alias is already in use 🍔' })
-        return res
-            .status(500)
-            .json({ message: 'Some error has occurred 🤦‍♂️', error })
+
+        return res.status(500).json(error.message)
     }
 })
 
 // @route     GET /api/:code
 // @desc      Redirect & Update click count to/for long/original URL
-router.get('/url/:code', validateUser, async (req, res) => {
+router.get('/url/:code', async (req, res) => {
     try {
         const url = await Url.findOne({ urlCode: req.params.code })
         if (url) {
